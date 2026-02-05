@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Leads</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: background 0.2s;
+        }
+        li:hover {
+            background: #f0f0f0;
+        }
+        #leadDetails {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .field {
+            margin-bottom: 5px;
+        }
+        .field strong {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Leads</h1>
+    <ul id="leadList"></ul>
+
+    <div id="leadDetails" style="display:none;"></div>
+
+    <script>
+        const leadList = document.getElementById('leadList');
+        const leadDetails = document.getElementById('leadDetails');
+
+        // Função para buscar todos os leads
+        async function fetchLeads() {
+            try {
+                const res = await fetch('/leads'); // Ajuste a porta se necessário
+                const leads = await res.json();
+
+                // Limpa a lista
+                leadList.innerHTML = '';
+
+                leads.forEach(lead => {
+                    const li = document.createElement('li');
+                    li.textContent = lead.nome; // Apenas o nome no início
+                    li.addEventListener('click', () => showLeadDetails(lead._id));
+                    leadList.appendChild(li);
+                });
+
+            } catch (err) {
+                console.error('Erro ao buscar leads:', err);
+                leadList.innerHTML = '<li>Erro ao carregar leads.</li>';
+            }
+        }
+
+        // Função para mostrar detalhes do lead
+        async function showLeadDetails(id) {
+            try {
+                const res = await fetch(`/leads/${id}`);
+                const lead = await res.json();
+
+                leadDetails.style.display = 'block';
+                leadDetails.innerHTML = `
+                    <div class="field"><strong>Nome:</strong> ${lead.nome}</div>
+                    <div class="field"><strong>Telefone:</strong> ${lead.telefone}</div>
+                    <div class="field"><strong>CEP:</strong> ${lead.cep}</div>
+                    <div class="field"><strong>Renda:</strong> ${lead.renda}</div>
+                    <div class="field"><strong>Restrição:</strong> ${lead.restricao}</div>
+                    <div class="field"><strong>Valor Desejado:</strong> ${lead.valorDesejado}</div>
+                    <div class="field"><strong>CPF:</strong> ${lead.cpf}</div>
+                    <div class="field"><strong>Email:</strong> ${lead.email}</div>
+                    <div class="field"><strong>Classificação:</strong> ${lead.classificacao}</div>
+                    <div class="field"><strong>Justificativa:</strong> ${lead.justificativa}</div>
+                `;
+            } catch (err) {
+                console.error('Erro ao buscar lead:', err);
+                leadDetails.innerHTML = 'Erro ao carregar detalhes do lead.';
+                leadDetails.style.display = 'block';
+            }
+        }
+
+        // Carrega os leads ao iniciar a página
+        fetchLeads();
+    </script>
+</body>
+</html>
